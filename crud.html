@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>增删改查</title>
+    <link rel="stylesheet" href="./layui/css/layui.css">
+</head>
+
+<body>
+    <div style="margin: 20px auto;width: 70%;">
+
+        <table id="tableRef" lay-filter="tableRef"></table>
+    </div>
+
+    <form id="formRef" class="layui-form" lay-filter="formRef" action="" style="padding: 20px; display: none;">
+        <div class="layui-form-item" style="display: none;">
+            <label class="layui-form-label">ID</label>
+            <div class="layui-input-block">
+                <input class="layui-input" name="id" type="text" autocomplete="off">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">姓名</label>
+            <div class="layui-input-block">
+                <input class="layui-input" name="real_name" type="text" required lay-verify="required"
+                    lay-reqtext="请输入姓名" placeholder="请输入姓名" autocomplete="off">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">性别</label>
+            <div class="layui-input-block">
+                <input type="radio" name="gender" value="男" title="男">
+                <input type="radio" name="gender" value="女" title="女">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">年龄</label>
+            <div class="layui-input-block">
+                <input class="layui-input" name="age" type="text" placeholder="请输入年龄" autocomplete="off">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">政治面貌</label>
+            <div class="layui-input-block">
+                <input class="layui-input" name="identity" type="text" placeholder="请输入政治面貌" autocomplete="off">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">工作</label>
+            <div class="layui-input-block">
+                <input class="layui-input" name="work" type="text" placeholder="请输入工作" autocomplete="off">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">邮箱</label>
+            <div class="layui-input-block">
+                <input class="layui-input" name="email" type="text" lay-verify="email" placeholder="请输入邮箱"
+                    autocomplete="off">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">手机号</label>
+            <div class="layui-input-block">
+                <input class="layui-input" name="phone" type="text" lay-verify="phone" placeholder="请输入手机号"
+                    autocomplete="off">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">地址</label>
+            <div class="layui-input-block">
+                <div class="layui-input-inline">
+                    <select id="province" name="province" lay-filter="province"> </select>
+                </div>
+                <div class="layui-input-inline">
+                    <select id="city" name="city" lay-filter="city"> </select>
+                </div>
+                <div class="layui-input-inline">
+                    <select id="area" name="area" lay-filter="area"> </select>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button id="update" type="button" class="layui-btn">确认</button>
+                <button class="layui-btn layui-btn-primary layui-border">取消</button>
+            </div>
+        </div>
+    </form>
+
+    <script src="./js/axios.js"></script>
+    <script src="./layui/layui.js"></script>
+    <script src="./js/area.js"></script>
+    <script>
+        const baseUrl = 'http://localhost:3000/api/v1'
+        const table = layui.table;
+        table.render({
+            elem: '#tableRef',
+            height: '600px',
+            url: `${baseUrl}/user/list`,
+            parseData(res) {
+                return {
+                    "code": 0, //解析接口状态
+                    "msg": '成功', //解析提示文本
+                    "count": res.total, //解析数据长度
+                    "data": res.list //解析数据列表
+                };
+            },
+            page: false,
+            request: {
+                pageName: 'page', //页码的参数名称，默认：page
+                limitName: 'pageSize' //每页数据量的参数名，默认：limit
+            },
+            cols: [
+                [
+                    { field: 'real_name', title: '姓名', align: 'center' },
+                    { field: 'gender', title: '性别', align: 'center' },
+                    { field: 'age', title: '年龄', align: 'center' },
+                    { field: 'identity', title: '政治面貌', align: 'center' },
+                    { field: 'work', title: '工作', align: 'center' },
+                    { field: 'email', title: '邮箱', align: 'center' },
+                    { field: 'phone', title: '手机号', align: 'center' },
+                    {
+                        field: 'address', title: '地址', align: 'center', templet(item) {
+                            return `${item.province}${item.city}${item.area}`
+                        }
+                    },
+                    {
+                        field: '', title: '操作', align: 'center', templet(item) {
+                            return `
+                            <button type="button" class="layui-btn layui-btn-sm" lay-event="edit">编辑</button>
+                            <button type="button" class="layui-btn layui-btn-sm layui-btn-danger" lay-event="del">删除</button>`
+                        }
+                    },
+                ]
+            ],
+        });
+
+
+        let cityList = []
+        let areaList = []
+
+
+        function renderProvince() {
+            return `
+            <select id="province" name="province" lay-filter="province">
+            <option value="">请选择</option>
+                    ${provinceList.map(item => {
+                return `<option value="${item.name}">${item.name}</option>`
+            })}
+            </select>
+            `
+        }
+
+        const dom = renderProvince()
+        // document.querySelector('#province1').innerHTML = dom
+        document.querySelector('#province').innerHTML = dom
+
+
+        function renderCity() {
+            return `
+                <select id="city" name="city" lay-filter="city">
+                    <option value="">请选择</option>
+                    ${cityList.map(item => {
+                return `<option value="${item.name}">${item.name}</option>`
+            })}
+                </select>
+                `
+        }
+
+        function renderArea() {
+            return `
+                <select id="area" name="area" lay-filter="area">
+                    <option value="">请选择</option>
+                    ${areaList.map(item => {
+                return `<option value="${item}">${item}</option>`
+            })}
+                </select>
+            `
+        }
+
+        const form = layui.form;
+
+
+        form.on('select(province1)', function (data) {
+            const item = provinceList.find(item => item.name === data.value)
+            if (item) cityList = item.cityList
+            document.querySelector('#city1').innerHTML = renderCity()
+            form.render('select');
+        })
+
+        form.on('select(province)', function (data) {
+            const item = provinceList.find(item => item.name === data.value)
+            if (item) cityList = item.cityList
+            document.querySelector('#city').innerHTML = renderCity()
+            form.render('select');
+        })
+
+        form.on('select(city1)', function (data) {
+            const item = cityList.find(item => item.name === data.value)
+            if (item) areaList = item.areaList
+            document.querySelector('#area1').innerHTML = renderArea()
+            form.render('select');
+        })
+
+        form.on('select(city)', function (data) {
+            const item = cityList.find(item => item.name === data.value)
+            if (item) areaList = item.areaList
+            document.querySelector('#area').innerHTML = renderArea()
+            form.render('select');
+        })
+
+        layui.$('#search').on('click', function () {
+            form.submit('searchRef', function (item) {
+                console.log(item.field);
+                table.reloadData('tableRef', { where: { ...item.field } })
+            })
+        })
+
+        layui.$('#update').on('click', function () {
+            form.submit('formRef', function (item) {
+                const { id, ...data } = item.field
+                axios.patch(`${baseUrl}/user/${id}`, data).then(res => {
+                    table.reloadData('tableRef')
+                    layui.layer.closeAll('page')
+                })
+            })
+        })
+
+
+        table.on('tool(tableRef)', function (obj) {
+            if (obj.event === "edit") {
+                form.val("formRef", obj.data)
+                openModal()
+            }
+            if (obj.event === 'del') {
+                axios.delete(`${baseUrl}/user/${obj.data.id}`).then(res => {
+                    table.reloadData('tableRef')
+                })
+            }
+        })
+
+        function openModal() {
+            layui.layer.open({
+                type: 1, // page 层类型
+                area: ['800px', '800px'],
+                title: false,
+                shade: 0.6, // 遮罩透明度
+                shadeClose: true, // 点击遮罩区域，关闭弹层
+                anim: 0, // 0-6 的动画形式，-1 不开启
+                content: layui.$('#formRef'),
+            });
+        }
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>登录</title>
+  <link rel="stylesheet" href="./layui/css/layui.css">
+</head>
+
+<body>
+  <style>
+    .demo-login-container {
+      width: 320px;
+      margin: 21px auto 0;
+    }
+
+    .demo-login-other .layui-icon {
+      position: relative;
+      display: inline-block;
+      margin: 0 2px;
+      top: 2px;
+      font-size: 26px;
+    }
+  </style>
+  <form class="layui-form">
+    <div class="demo-login-container">
+      <div class="layui-form-item">
+        <div class="layui-input-wrap">
+          <div class="layui-input-prefix">
+            <i class="layui-icon layui-icon-username"></i>
+          </div>
+          <input type="text" name="username" value="" lay-verify="required" placeholder="用户名" lay-reqtext="请填写用户名"
+            autocomplete="off" class="layui-input" lay-affix="clear">
+        </div>
+      </div>
+      <div class="layui-form-item">
+        <div class="layui-input-wrap">
+          <div class="layui-input-prefix">
+            <i class="layui-icon layui-icon-password"></i>
+          </div>
+          <input type="password" name="password" value="" lay-verify="required" placeholder="密   码" lay-reqtext="请填写密码"
+            autocomplete="off" class="layui-input" lay-affix="eye">
+        </div>
+      </div>
+
+      <div class="layui-form-item">
+        <input type="checkbox" name="remember" lay-skin="primary" title="记住密码">
+        <a href="#forget" style="float: right; margin-top: 7px;">忘记密码？</a>
+      </div>
+      <div class="layui-form-item">
+        <button class="layui-btn layui-btn-fluid" lay-submit lay-filter="login">登录</button>
+      </div>
+      <div class="layui-form-item demo-login-other">
+        <a href="./register.html">注册帐号</a>
+      </div>
+    </div>
+  </form>
+
+  <script src="./js/axios.js"></script>
+  <script src="./layui/layui.js"></script>
+  <script>
+    const baseUrl = 'http://localhost:3000/api/v1'
+    layui.form.on('submit(login)', function (item) {
+      console.log(item.field);
+      axios.post(`${baseUrl}/user/login`, item.field).then(res => {
+        window.location.href = './index.html'
+      })
+      return false;
+    })
+
+  </script>
+</body>
+
+</html>

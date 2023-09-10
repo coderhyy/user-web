@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>注册</title>
+  <link rel="stylesheet" href="./layui/css/layui.css">
+
+</head>
+
+<body>
+
+  <style>
+    .demo-reg-container {
+      width: 320px;
+      margin: 21px auto 0;
+    }
+
+    .demo-reg-other .layui-icon {
+      position: relative;
+      display: inline-block;
+      margin: 0 2px;
+      top: 2px;
+      font-size: 26px;
+    }
+  </style>
+  <form class="layui-form">
+    <div class="demo-reg-container">
+
+      <div class="layui-form-item">
+        <div class="layui-input-wrap">
+          <div class="layui-input-prefix">
+            <i class="layui-icon layui-icon-username"></i>
+          </div>
+          <input type="text" name="username" lay-verify="required" placeholder="用户名" autocomplete="off"
+            class="layui-input" lay-affix="clear">
+        </div>
+      </div>
+      <div class="layui-form-item">
+        <div class="layui-input-wrap">
+          <div class="layui-input-prefix">
+            <i class="layui-icon layui-icon-password"></i>
+          </div>
+          <input type="password" name="password" lay-verify="required" placeholder="密码" autocomplete="off"
+            class="layui-input" id="reg-password" lay-affix="eye">
+        </div>
+      </div>
+      <div class="layui-form-item">
+        <button class="layui-btn layui-btn-fluid" lay-submit lay-filter="register">注册</button>
+      </div>
+      <div class="layui-form-item demo-reg-other">
+        <a href="./login.html">登录已有帐号</a>
+      </div>
+    </div>
+  </form>
+
+  <script src="./js/axios.js"></script>
+  <script src="./layui/layui.js"></script>
+  <script>
+    const baseUrl = 'http://localhost:3000/api/v1'
+    layui.form.on('submit(register)', function (item) {
+      console.log(item.field);
+      axios.post(`${baseUrl}/user/register`, item.field).then(res => {
+        window.location.href = './login.html'
+      })
+      return false;
+    })
+
+  </script>
+</body>
+
+</html>

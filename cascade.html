@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>三级联动</title>
+  <link rel="stylesheet" href="./layui/css/layui.css">
+
+</head>
+
+<body>
+  <div style="margin: 20px auto;width: 70%;">
+    <form id="searchRef" class="layui-form" lay-filter="searchRef" action="">
+      <div class="layui-form-item">
+        <label class="layui-form-label">地址</label>
+        <div class="layui-input-block ">
+          <div class="layui-col-sm4">
+            <select id="province1" name="province" lay-filter="province1"> </select>
+          </div>
+          <div class="layui-col-sm4">
+            <select id="city1" name="city" lay-filter="city1"> </select>
+          </div>
+          <div class="layui-col-sm4">
+            <select id="area1" name="area" lay-filter="area1"> </select>
+          </div>
+        </div>
+      </div>
+      
+    </form>
+  </div>
+
+  <script src="./js/area.js"></script>
+  <script src="./layui/layui.js"></script>
+  <script>
+    function renderProvince() {
+      return `
+            <select id="province" name="province" lay-filter="province">
+            <option value="">请选择</option>
+                    ${provinceList.map(item => {
+        return `<option value="${item.name}">${item.name}</option>`
+      })}
+            </select>
+            `
+    }
+    function renderCity() {
+      return `
+                <select id="city" name="city" lay-filter="city">
+                    <option value="">请选择</option>
+                    ${cityList.map(item => {
+        return `<option value="${item.name}">${item.name}</option>`
+      })}
+                </select>
+                `
+    }
+    function renderArea() {
+      return `
+                <select id="area" name="area" lay-filter="area">
+                    <option value="">请选择</option>
+                    ${areaList.map(item => {
+        return `<option value="${item}">${item}</option>`
+      })}
+                </select>
+            `
+    }
+
+    const dom = renderProvince()
+    document.querySelector('#province1').innerHTML = dom
+
+    const form = layui.form;
+    form.on('select(province1)', function (data) {
+      const item = provinceList.find(item => item.name === data.value)
+      if (item) cityList = item.cityList
+      document.querySelector('#city1').innerHTML = renderCity()
+      form.render('select');
+    })
+    form.on('select(city1)', function (data) {
+      const item = cityList.find(item => item.name === data.value)
+      if (item) areaList = item.areaList
+      document.querySelector('#area1').innerHTML = renderArea()
+      form.render('select');
+    })
+  </script>
+</body>
+
+</html>
